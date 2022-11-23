@@ -13,3 +13,4 @@ jobs:
       - run: bats -v
       - run: echo $MY_SECRET
       - run: echo "Hello"
+      - run: sh run.sh

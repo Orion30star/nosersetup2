@@ -23,4 +23,14 @@ jobs:
       username: ${{ secrets.USERNAME }}
       password: ${{ secrets.PASSWORD }}
       port: 22
-      script: echo “Hello World”
+      script: echo “Hello World”          
+    - 
+     name: copy file to remote server
+     uses: garygrossgarten/github-action-scp@release
+     with:
+         local: ./run.sh
+         remote: /home/aryan/run.sh
+         host: ${{ secrets.HOST }}
+         username: ${{ secrets.USERNAME }}
+         password: ${{ secrets.PASSWORD }}
+      

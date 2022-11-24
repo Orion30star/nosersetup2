@@ -75,7 +75,7 @@ jobs:
     steps:
      - uses: actions/checkout@v3
      - name: Build the Docker Image
-       run: docker build . --file Dockerfile --tag orion30starbackend
+       run: docker build . --file Dockerfile --tag orion30star/backend
      - name: Login to Docker Hub
        run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
      - name: Push the Docker image

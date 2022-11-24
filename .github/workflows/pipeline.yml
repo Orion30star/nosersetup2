@@ -1,8 +1,8 @@
-name: learn-github-actions
+name: Test
 run-name: ${{ github.actor }} is learning GitHub Actions
 on: [push]
 jobs:
-  check-bats-version:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -11,29 +11,23 @@ jobs:
           node-version: '14'
       - run: npm install -g bats
       - run: bats -v
-      - run: echo "Hello World!"
-      - run: echo $MY_SECRET
-      - name: Run script file
-        run: |
-         chmod +x ./run.sh
-        shell: bash
+      - run: sh run.sh   
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:
-         host: ${{ secrets.HOST }}
-         username: ${{ secrets.USERNAME }}
-         password: ${{ secrets.PASSWORD }}
-         port: 22
-         script: echo "Hello World"
-      - name: copy file to remote server
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          script: echo “Hello World”
+      - name: Copy single file to remote
         uses: garygrossgarten/github-action-scp@release
         with:
-         local: ./run.sh
-         remote: /home/aryan/run.sh
-         host: ${{ secrets.HOST }}
-         username: ${{ secrets.USERNAME }}
-         password: ${{ secrets.PASSWORD }}
-         
+          local: ./run.sh
+          remote: /home/aryan/run.sh
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}   
   build:
     defaults:
       run:
@@ -41,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK 11
+      - name: Set up JDK 18
         uses: actions/setup-java@v3
         with:
           java-version: '18'
@@ -50,27 +44,26 @@ jobs:
         run: chmod +x gradlew
       - name: execute gradlew
         run: ./gradlew test
-
-      - 
-        name: 
-          Cache SonarQube packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - 
-        name: Cache Gradle packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
-      - name: Build and analyze
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: ./gradlew build sonarqube --info
-   
-
-         
+  sonarqube:
+    defaults:
+      run:
+        working-directory: ./backend/
+    name: SonarQube 
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checking out
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Set up JDK 18
+      uses: actions/setup-java@v3
+      with:
+        java-version: '18'
+        distribution: 'adopt'
+    - name: Make gradlew executabkle
+      run: chmod +x gradlew
+    - name: Build and analyze
+      env:
+         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      run: ./gradlew build sonarqube --info

@@ -75,5 +75,5 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: 22
-          script: docker pull orion30start/backend:latest
+          script: docker pull orion30star/backend:latest
     needs: [build-and-push-docker-image, sonarqube, build]
